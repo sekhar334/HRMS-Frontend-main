@@ -1,0 +1,44 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout code from the GitHub repository
+                checkout([$class: 'GitSCM',
+                    branches: [[name: '*/main']], // Change branch name if needed
+                    userRemoteConfigs: [[url: 'https://github.com/sekhar334/HRMS-Frontend-main.git']] // Replace with your GitHub repository URL
+                ])
+            }
+        }
+        
+        stage('Install dependencies') {
+            steps {
+                // Install Node.js and Angular dependencies
+                sh 'npm install'
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                // Build the Angular project
+                sh 'npm run build' // Adjust build command as per your Angular project configuration
+            }
+        }
+        
+        stage('Publish') {
+            steps {
+                // Publish artifacts (e.g., deploy to server, archive, etc.)
+                // You can copy the built files to a server or any other necessary actions
+                // For example, archiving the build artifacts
+                archiveArtifacts artifacts: '**/dist/**' // Adjust the path as per your Angular build output directory
+            }
+        }
+    }
+    
+    post {
+        always {
+            // Cleanup or any other post-build actions
+        }
+    }
+}
