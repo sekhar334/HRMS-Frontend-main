@@ -5,40 +5,43 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Checkout code from the GitHub repository
-                checkout([$class: 'GitSCM',
-                    branches: [[name: '*/main']], // Change branch name if needed
-                    userRemoteConfigs: [[url: 'https://github.com/sekhar334/HRMS-Frontend-main.git']] // Replace with your GitHub repository URL
-                ])
+                git branch: 'main', url: 'https://github.com/sekhar334/HRMS-Frontend-main.git'
             }
         }
         
-        stage('Install dependencies') {
+        stage('Install Dependencies') {
             steps {
-                // Install Node.js and Angular dependencies
+                // Install Node.js and npm if not installed
+                sh 'curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -'
+                sh 'sudo apt-get install -y nodejs'
+                
+                // Install Angular CLI globally
+                sh 'sudo npm install -g @angular/cli'
+                
+                // Install project dependencies
                 sh 'npm install'
+            }
+        }
+        
+        stage('Run Tests') {
+            steps {
+                // Run Angular.js tests
+                sh 'ng test --watch=false'
             }
         }
         
         stage('Build') {
             steps {
-                // Build the Angular project
-                sh 'npm run build' // Adjust build command as per your Angular project configuration
-            }
-        }
-        
-        stage('Publish') {
-            steps {
-                // Publish artifacts (e.g., deploy to server, archive, etc.)
-                // You can copy the built files to a server or any other necessary actions
-                // For example, archiving the build artifacts
-                archiveArtifacts artifacts: '**/dist/**' // Adjust the path as per your Angular build output directory
+                // Build Angular.js project
+                sh 'ng build --prod'
             }
         }
     }
     
     post {
         always {
-            // Cleanup or any other post-build actions
+            // Clean up after the build
+            cleanWs()
         }
     }
 }
