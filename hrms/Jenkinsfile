@@ -1,49 +1,57 @@
 pipeline {
     agent any
-    
+
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the code from the GitHub repository
-                git 'https://github.com/sekhar334/HRMS-Frontend-main.git'
+                // Checkout the code from GitHub
+                git branch: 'main', url: 'https://github.com/sekhar334/HRMS-Frontend-main.git'
             }
         }
-        
-        stage('Install dependencies') {
+
+        stage('Install Dependencies') {
             steps {
-                // Install Node.js and Angular CLI dependencies
+                // Install Node.js and npm if not already installed
+                sh 'npm install -g @angular/cli'
+
+                // Install project dependencies
                 sh 'npm install'
             }
         }
-        
+
         stage('Build') {
             steps {
                 // Build the Angular.js project
-                sh 'npm run build'
+                sh 'ng build --prod'
             }
         }
-        
-        stage('Unit Tests') {
+
+        stage('Test') {
             steps {
-                // Run unit tests for Angular.js project
-                sh 'npm run test'
+                // Run tests if applicable
+                sh 'ng test'
             }
         }
-        
+
         stage('Deploy') {
             steps {
-                // Deployment steps (e.g., copying build artifacts to a server)
-                // Replace this with your deployment process
-                sh 'echo "hrms"'
-                // Add your deployment commands here
+                // Deploy the built application, you can customize this based on your deployment process
+                // For example, copying the files to a server or deploying to a cloud platform
+                // This is just a basic example
+                sh 'cp -r dist/* /path/to/deployment/directory'
             }
         }
     }
-    
+
     post {
         always {
-            // Cleanup steps or notifications can go here
-            // For example, you might want to clean up temporary files or send notifications
+            // Clean up after the build, if needed
+        }
+        success {
+            // Actions to be taken when the build succeeds
+        }
+        failure {
+            // Actions to be taken when the build fails
         }
     }
 }
