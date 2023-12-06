@@ -1,55 +1,51 @@
 pipeline {
     agent any
-    
+
     stages {
         stage('Checkout') {
             steps {
                 // Checkout code from the GitHub repository
-                git 'https://github.com/sekhar334/HRMS-Frontend-main.git'
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], userRemoteConfigs: [[url: 'https://github.com/sekhar334/HRMS-Frontend-main.git']]])
             }
         }
-        
+
         stage('Install Dependencies') {
             steps {
-                // Install Node.js and npm
-                sh 'sudo apt-get install -y nodejs'
-                
-                // Install Angular CLI globally
-                sh 'sudo npm install -g @angular/cli'
-                
-                // Install project dependencies
-                sh 'npm install'
+                // Install Node.js and Angular CLI
+                sh 'npm install -g @angular/cli'
+                sh 'npm install' // Install project dependencies
             }
         }
-        
-        stage('Run Tests') {
+
+        stage('Build') {
             steps {
-                // Run tests using Angular CLI
+                // Build Angular.js project
+                sh 'ng build --prod'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                // Run tests if you have any
                 sh 'ng test'
             }
         }
-        
-        stage('Build') {
+
+        stage('Deploy') {
             steps {
-                // Build the Angular project
-                sh 'ng build --prod'
-                
-                // You can deploy or archive the built artifacts as needed
-                // For example, archive the build artifacts
-                archiveArtifacts artifacts: 'dist/*'
+                // Perform deployment steps if required
+                // For example, deploying to a web server
+                // You may need additional configuration here based on your deployment setup
             }
         }
     }
-    
+
     post {
         success {
-            // This block will execute if the pipeline succeeds
-            echo 'Angular.js build and test pipeline succeeded!'
+            // Actions to be performed on successful build
         }
-        
         failure {
-            // This block will execute if the pipeline fails
-            echo 'Angular.js build and test pipeline failed!'
+            // Actions to be performed on build failure
         }
     }
 }
