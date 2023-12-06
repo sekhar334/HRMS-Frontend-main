@@ -4,39 +4,56 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the code from the GitHub repository
-                git 'https://github.com/sekhar334/HRMS-Frontend-main.git '
+                // Checkout code from the GitHub repository
+                checkout([$class: 'GitSCM', 
+                          branches: [[name: '*/main']], 
+                          userRemoteConfigs: [[url: 'https://github.com/sekhar334/HRMS-Frontend-main.git']]])
             }
         }
         
         stage('Install Dependencies') {
             steps {
-                // Install Node.js and npm (if not already installed)
+                // Install Node.js and npm
+                sh 'curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -'
+                sh 'sudo apt-get install -y nodejs'
+                
+                // Install Angular CLI
+                sh 'sudo npm install -g @angular/cli'
+                
+                // Install project dependencies
                 sh 'npm install'
             }
         }
         
         stage('Build') {
             steps {
-                // Build the Angular.js project
-                sh 'npm run build'  // You might need to adjust the command based on your project configuration
+                // Build Angular.js application
+                sh 'ng build --prod'
+            }
+        }
+        
+        stage('Run Tests') {
+            steps {
+                // Run tests if available (replace this with your test command)
+                sh 'ng test'
             }
         }
         
         stage('Deploy') {
             steps {
-                // Deploy the built files to your server or any required destination
-                // This step can be adjusted based on your deployment needs (e.g., copying files to a server)
-                sh 'echo "Deploying your Angular.js project"'
-                // Add deployment steps here
+                // Your deployment steps here (e.g., deploying to a server)
+                // Replace this with your actual deployment commands
+                // For example, deploying to a server using FTP or copying files to a location
+                sh 'echo "hrms"'
             }
         }
     }
     
     post {
         always {
-            // Clean up or perform any post-build actions if necessary
-            // For example, notifications, archiving artifacts, etc.
+            // Cleanup steps, if needed
+            deleteDir()
         }
     }
 }
+
